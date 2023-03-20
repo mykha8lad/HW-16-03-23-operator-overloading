@@ -14,7 +14,7 @@ namespace HW_14_03_23_exceptions
         private List<Student> students = new List<Student>();
         RandomDataForGroup randomData = new RandomDataForGroup();
 
-        private int studentsInGroup;
+        private int studentsInGroup = 10;
         private string groupName;
         private string groupSpecialization;
         private int courseNumber;
@@ -73,6 +73,30 @@ namespace HW_14_03_23_exceptions
         public void setCountStudents(int countStudents)
         {
             if (countStudents < 5 || countStudents > 15) throw new CountStudentsException();
+
+            if (countStudents > this.getCountStudents())
+            {
+                for (int student = countStudents; student != getCountStudents(); --student)
+                {
+                    string phoneRegexp = @"^\(\d{3}\)\d{3}\-\d{4}$";
+                    string phoneNumber;
+                    do
+                    {
+                        phoneNumber = Faker.Phone.Number();
+                    } while (!Regex.IsMatch(phoneNumber, phoneRegexp));
+                    Random random = new Random();
+                    DateTime birthday = new DateTime(random.Next(2003, 2007), random.Next(1, 13), random.Next(1, 29));
+                    students.Add(new Student(Faker.Name.First(), Faker.Name.Last(), Faker.Name.Middle(), birthday, phoneNumber, Faker.Address.City(), Faker.Address.StreetName(), Faker.Address.ZipCode()));
+                }
+            }
+            else if (countStudents < this.getCountStudents())
+            {
+                for (int student = getCountStudents(); student != countStudents; --student)
+                {
+                    students.RemoveAt(student - 1);
+                }
+            }
+
             this.studentsInGroup = countStudents;
         }
         public void setGroupName(string groupName)
@@ -95,6 +119,45 @@ namespace HW_14_03_23_exceptions
         public string getGroupName() { return this.groupName; }
         public string getGroupSpecialization() { return this.groupSpecialization; }
         public int getCourseNumber() { return this.courseNumber; }
+
+        // operator overloading
+        public override int GetHashCode() { return getCountStudents().GetHashCode(); }
+        public override bool Equals(object obj)
+        {
+            Group group = obj as Group;
+            if (group == null || GetType() != group.GetType()) { throw new ArgumentException(); }
+
+            return this.getCountStudents() == group.getCountStudents();
+        }
+
+        public static bool operator ==(Group firstGroup, Group secondGroup)
+        {
+            if (object.ReferenceEquals(firstGroup, secondGroup)) { return true; }
+
+            if (object.ReferenceEquals(firstGroup, null) || object.ReferenceEquals(secondGroup, null)) { return false; }
+
+            return firstGroup.getCountStudents() == secondGroup.getCountStudents();
+        }
+        public static bool operator !=(Group firstGroup, Group secondGroup) { return !(firstGroup == secondGroup); }
+
+        public static bool operator >(Group firstGroup, Group secondGroup)
+        {
+            return firstGroup.getCountStudents() > secondGroup.getCountStudents();
+        }
+        public static bool operator <(Group firstGroup, Group secondGroup)
+        {
+            return firstGroup.getCountStudents() > secondGroup.getCountStudents();
+        }
+
+        public static bool operator >=(Group firstGroup, Group secondGroup)
+        {
+            return firstGroup.getCountStudents() > secondGroup.getCountStudents();
+        }
+        public static bool operator <=(Group firstGroup, Group secondGroup)
+        {
+            return firstGroup.getCountStudents() > secondGroup.getCountStudents();
+        }
+        // operator overloading
 
         public void createGroup(string groupName, string groupSpecialization, int courseNumber)
         {
@@ -124,9 +187,9 @@ namespace HW_14_03_23_exceptions
         }
         public override string ToString()
         {
-            return $"Group: {getGroupName()} Specialization: {getGroupSpecialization()} Course: {getCourseNumber()}\n" +
+            return $"Group: {getGroupName()}. Specialization: {getGroupSpecialization()}. Course: {getCourseNumber()}. Count students: {getCountStudents()}\n" +
                 $"--------------------------------------------------------------------------------\n" +
-                $"{getAllStudentsInfo()}";
+                $"{getAllStudentsInfo()}\n";
         }
 
         public void addStudentInGroup(Student student) { students.Add(student); }

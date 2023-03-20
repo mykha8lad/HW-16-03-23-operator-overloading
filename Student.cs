@@ -82,6 +82,52 @@ namespace HW_14_03_23_exceptions
         public string getPhoneNumber() { return this.phoneNumber; }
         public DateTime getBirthday() { return this.birthday; }
         public Address getAddress() { return this.address; }
+        public double getAverageMark()
+        {
+            double avgMark = 0;
+            avgMark += getListOffsets().Average() + getListHometasks().Average() + getListExams().Average();
+
+            return avgMark;
+        }
+
+        // operator overloading
+        public override int GetHashCode() { return getAverageMark().GetHashCode(); }
+        public override bool Equals(object obj)
+        {
+            Student student = obj as Student;
+            if (student == null || GetType() != student.GetType()) { throw new ArgumentException(); }
+
+            return this.getAverageMark() == student.getAverageMark();
+        }
+
+        public static bool operator ==(Student firstStudent, Student secondStudent)
+        {
+            if (object.ReferenceEquals(firstStudent, secondStudent)) { return true; }
+
+            if (object.ReferenceEquals(firstStudent, null) || object.ReferenceEquals(secondStudent, null)) { return false; }
+
+            return firstStudent.getAverageMark() == secondStudent.getAverageMark();
+        }
+        public static bool operator !=(Student firstStudent, Student secondStudent) { return !(firstStudent == secondStudent); }
+
+        public static bool operator >(Student firstStudent, Student secondStudent)
+        {
+            return firstStudent.getAverageMark() > secondStudent.getAverageMark();
+        }
+        public static bool operator <(Student firstStudent, Student secondStudent)
+        {
+            return firstStudent.getAverageMark() > secondStudent.getAverageMark();
+        }
+
+        public static bool operator >=(Student firstStudent, Student secondStudent)
+        {
+            return firstStudent.getAverageMark() > secondStudent.getAverageMark();
+        }
+        public static bool operator <=(Student firstStudent, Student secondStudent)
+        {
+            return firstStudent.getAverageMark() > secondStudent.getAverageMark();
+        }
+        // operator overloading
 
         public List<int> getListOffsets() { return this.offsets; }
         public List<int> getListHometasks() { return this.hometasks; }
@@ -101,7 +147,8 @@ namespace HW_14_03_23_exceptions
                 $"Rating\n" +
                 $"Scores offsets - {getListOffsetsForToString()}\n" +
                 $"Scores hometasks - {getListHometasksForToString()}\n" +
-                $"Scores exams - {getListExamsForToString()}\n");
+                $"Scores exams - {getListExamsForToString()}\n" +
+                $"Average score: {getAverageMark()}\n");
         }
     }
 }
